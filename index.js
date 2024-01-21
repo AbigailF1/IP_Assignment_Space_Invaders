@@ -41,7 +41,24 @@ let bulletVelocityY = -10; //bullet moving speed
 
 let score = 0;
 let gameOver = false;
+let endGame = false;
 
+// audio
+const shootSound = new Audio(src="sounds/shoot.wav");
+const deathSound = new Audio(src="sounds/enemy-death.wav");
+
+function playShootSound() {
+    shootSound.currentTime = 0;
+    shootSound.volume = 0.1;
+    shootSound.play();
+
+}
+
+function playDeathSound() {
+    deathSound.currentTime = 0;
+    deathSound.volume = 0.1;
+    deathSound.play();
+}
 
 window.onload = function() {
     board = document.getElementById("board");
@@ -49,7 +66,7 @@ window.onload = function() {
     board.height = boardHeight;
     context = board.getContext("2d"); //used for drawing on the board
 
-    // images 
+    // loading images 
     shipImg = new Image();
     shipImg.src = "images/ship.png";
     shipImg.onload = function() {
@@ -65,7 +82,8 @@ window.onload = function() {
 }
 function update() {
     if (gameOver){
-        End();
+        alert("Game Over !!")
+        return;
     }
     
     requestAnimationFrame(update);
@@ -79,6 +97,7 @@ function update() {
         let alien = alienArray[i];
         if (alien.alive) {
             alien.x += alienVelocityX;
+            
             //if alien touches the borders
             if (alien.x + alien.width >= board.width || alien.x <= 0) {
                 alienVelocityX *= -1;
@@ -99,6 +118,7 @@ function update() {
             }
 
         }
+     
     }
 
     // bullets 
@@ -113,23 +133,23 @@ function update() {
         for (let j = 0; j < alienArray.length; j++) {
             let alien = alienArray[j];
             if (!bullet.used && alien.alive && detectCollision(bullet, alien)) {
+                playDeathSound();
                 bullet.used = true;
                 alien.alive = false;
                 alienCount--;
                 score += 10;
             }
         }
-
-        // clear bullets 
-        while (bulletArray.length > 0 && (bulletArray[0].used || bulletArray[0].y < 0)) {
-            bulletArray.shift(); //removes the first element of the array
-        }   
     }
+    // clear bullets 
+    while (bulletArray.length > 0 && (bulletArray[0].used || bulletArray[0].y < 0)) {
+        bulletArray.shift(); //removes the first element of the array
+    }   
 
     //next level
     if (alienCount == 0) {
         //increase the number of aliens in columns and rows by 1
-        score += alienColumns * alienRows * 100; //bonus points :)
+        score += alienColumns * alienRows * 10; //bonus points :)
         alienColumns = Math.min(alienColumns + 1, columns/2 -2); //cap at 16/2 -2 = 6
         alienRows = Math.min(alienRows + 1, rows-4);  //cap at 16-4 = 12
         if (alienVelocityX > 0) {
@@ -152,7 +172,8 @@ function update() {
 
 function moveShip(e) {
     if (gameOver){
-        End();
+        alert("Game Over !!")
+        return;
     }
 
     if (e.code == "ArrowLeft" && ship.x - shipVelocityX >= 0 ) {
@@ -177,14 +198,15 @@ function createAliens() {
             alienArray.push(alien);
         }
     }
-    alienCount = alienArray.length;
+    alienCount = alienArray.length;   
 }
 
 
 function shoot(e) {
 
     if (gameOver){
-        End();
+        alert("Game Over !!")
+        return;
     }
 
     if (e.code == "Space") {
@@ -197,6 +219,7 @@ function shoot(e) {
             used : false
         }
         bulletArray.push(bullet);
+        playShootSound();
     }
 }
 
@@ -207,6 +230,3 @@ function detectCollision(a, b) {
            a.y + a.height > b.y;    //a's bottom left corner passes b's top left corner
 }
 
-function End(){
-    return;
-}
