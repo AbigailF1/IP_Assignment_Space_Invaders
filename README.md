@@ -1,6 +1,6 @@
-Title: Space_Invaders 
-Group: 6 
-Group Members:
+Title: Space_Invaders  <br>
+Group: 6  <br> 
+Group Members: <br>
 --------------------------------------------------------
 Name                         |          ID
 --------------------------------------------------------
